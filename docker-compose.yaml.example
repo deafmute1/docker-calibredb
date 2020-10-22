@@ -1,1 +1,18 @@
- 
+version: '3.0'
+
+services:
+    calibre-db: 
+        image: deafmute/calibredb:latest
+        environment:
+            - UMASK_SET=002 
+            - IMPORT_TIME=15m
+        volumes:
+            - /var/ddata/calibre/calibre-db:/calibre/config
+            - /var/ddata/calibre/import:/calibre/import
+            - /var/ddata/calibre/library:/calibre/library
+        deploy:
+            restart_policy:
+                condition: on-failure
+                delay: 60s
+                max_attempts: 5        
+

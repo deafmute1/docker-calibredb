@@ -47,8 +47,8 @@ modifier () {
 while true; do
     for folder in "${!importDict[@]}"; do
         find "/calibre/import/${folder}" -exec modifier {} $folder \; 
-        find "/calibre/import/${folder}" -exec calibredb add --with-library /calibre/library {} \; 
-    wait $IMPORT_TIME
+        find "/calibre/import/${folder}" -exec calibredb add --with-library /calibre/library {} \; -exec rm -r {} \;
+    sleep $IMPORT_TIME
 
         
 

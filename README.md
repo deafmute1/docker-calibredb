@@ -11,18 +11,18 @@ Please note, imported files are removed from mount. This is because using inotif
 
 ### Mounts: 
 
-    | Container mount point | Function |
-    | :----: | --- |
-    | /calibre/library | the calibre library, where metadata.db is located |
-    | /calibre/import | the location for import folders |
-    | /calibre/config | contains import.config and log files |
+Container mount point | Function 
+--- | --- 
+/calibre/library | the calibre library, where metadata.db is located 
+/calibre/import | the location for import folders 
+/calibre/config | contains import.config and log files 
     
 ### Environmental variables: 
 
-    | Variable(=Default) | Function | 
-    | :----: | --- |
-    | UMASK_SET=022 | umask value for entrypoint functions | 
-    | IMPORT_TIME=10m | How long to wait before looking for files to import. A value to be understood by `sleep` (integer{h,m,s}). |
+| Variable(=Default) | Function | 
+| --- | --- |
+| UMASK_SET=022 | umask value for entrypoint functions | 
+| IMPORT_TIME=10m | How long to wait before looking for files to import. A value to be understood by `sleep` (integer{h,m,s}). |
 
 
 ### import.config

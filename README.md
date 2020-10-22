@@ -26,15 +26,19 @@ Container mount point | Function
 
 
 ### import.config
-This goes in /image_root/calibre/config/import.config 
-The recommended way to use this file is to mount from host, but you can place it before build if you wish
+This goes in /image_root/calibre/config/import.config. The recommended way to use this file is to mount from host, but you can place it there before build if you wish.
 
- Each line in this file is a config for an import rule as such:
-       `<subfolder of /calibre/import> <command with arguments>`
-This assumes that the command is run as `<command with arguments> <input file> `
-You can chain commands using ;, &&, || etc
-Or you can point to a shell script, in which case please refer to the file as $1.
-Do not wrap command in "" unless you want to pass no command (as below).
+Each line in this file is a config for an import rule as such:
+       `<subfolderof /calibre/import> <command with arguments>`
 
+- `entrypoint.sh` assumes that the command is run as `<command with arguments> <input file> `
+- You can chain commands using ;, &&, || etc. Or you can point to a shell script, in which case please refer to the file as $1.
+- Do not wrap command in "" unless you want to pass no command (as below).  You can do so if you want a folder with a space, but why?
+
+``` sh
 # default config with a single import directory with no modification on files
-` default "" `
+ default "" 
+
+# config for converting manga to mobi
+manga kcc-c2e -m -f MOBI
+ ``` 

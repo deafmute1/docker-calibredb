@@ -31,12 +31,16 @@ fi
 # run's user modification command
 # $1 = file (with path), $2 = parent folder
 modifier () {
+    if [[ ${importDict[$2]} == "" ]]; then
+        return 0
+    fi
     prevFileCount=$(ls "/calibre/import/${folder}" | wc -l)
     ${importDict[$2]} $1 
     # check if command created a new file, delete if so 
     if [[ $(ls "/calibre/import/${folder}" | wc -l) -gt $prevFileCount ]]; then 
         rm $1
     fi
+    return 0
 }
 
 # main loop

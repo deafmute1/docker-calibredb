@@ -7,7 +7,7 @@ services:
             - UMASK_SET=002 
             - IMPORT_TIME=15m
         volumes:
-            - /var/ddata/calibre/calibre-db:/calibre/config
+            - /var/ddata/calibre/calibre-config:/calibre/config
             - /var/ddata/calibre/import:/calibre/import
             - /var/ddata/calibre/library:/calibre/library
         deploy:

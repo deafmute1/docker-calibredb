@@ -16,18 +16,18 @@ function modifier () {
     return 0
 }
 
-
 ### SETUP
 umask "$UMASK_SET"
 
-#create logs and ln to stdout for docker log command
+#setup logs and ln to stdout for docker log command
 if [[ ! -d /var/log/calibre ]]; then
     mkdir -p /var/log/calibre 
 fi
+touch /var/log/calibre/entrypoint.log
+ln -s /var/log/calibre/entrypoint.log /dev/stdout
 exec 3>&1 4>&2
 trap 'exec 2>&4 1>&3' 0 1 2 3
 exec 1>/var/log/calibre/entrypoint.log 2>&1
-ln -s /var/log/calibre/entrypoint.log /dev/stdout
 
 # setup defaults if necessary, should only happen on first run
 if [[ ! -f /calibre/config/import.config ]]; then   
@@ -36,10 +36,6 @@ fi
 
 if [[ ! -f /calibre/library/metadata.db ]]; then   
     cp /calibre/defaults/metadata.db /calibre/library/metadata.db
-fi
-
-if [[ ! -d /calibre/config/bash.d ]]; then
-    mkdir -p /calibre/config/bash.d
 fi
 
 # generate import rules
@@ -57,8 +53,12 @@ fi
 ### MAIN 
 while true; do
     for folder in "${!importDict[@]}"; do
-        find "/calibre/import/${folder}/" -type f -exec sh -c 'modifier "$1" "$folder"' _ {} \; 
-        find "/calibre/import/${folder}" -type f -exec sh -c 'calibredb add --with-library /calibre/library "$1"; -exec rm -r "$1"' _ {} \;
+        # use workingDir to prevent issues arising from writes to $folder between/during steps 
+        workingDir=/tmp/calibre_import-$RANDOM
+        mkdir $workingDir
+        cp /calibre/import/"$folder"/* $workingDir
+        find "$workingDir" -type f -exec sh -c 'modifier "$1" "$folder"' _ {} \; 
+        find "$workingDir" -type f -exec sh -c 'calibredb add --with-library /calibre/library "$1"; -exec rm -r "$1"' _ {} \;
     done 
     for script in /calibre/config/bash.d/*; do
         bash "$script" -H || break

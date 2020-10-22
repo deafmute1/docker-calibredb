@@ -2,13 +2,12 @@ FROM debian:buster
 LABEL maintainer=me@ethandjeric.com
 LABEL version="0.1 beta"
 LABEL calibre_version="3.39.1"
-LABEL metadata.db_version="3.39.1 - from Debian Buster VM."
+LABEL default metadata.db_version="3.39.1 - from Debian Buster VM."
 
 ENV IMPORT_TIME=10m UMASK_SET=022
 
 RUN apt-get update && \
     apt-get install -y \
-        inotify-tools \
         # I am sticking with python2 calibre in buster that is fairly old - 3.39.1 vs 5.3.0 in stable and testing)
         # As this is a headless install I do not see the need for a newer version and 
         # v5 uses python3 which breaks compatibility with many plugins such as the popular DeDRM.

@@ -8,11 +8,11 @@ exec 1>/calibre/config/calibre-$(date +%Y%m%d-%H%M%S).log 2>&1
 umask $UMASK_SET
 
 # import defaults if necessary
-if [[ ! -f /calibre/config/import.config]]; then   
+if [[ ! -f /calibre/config/import.config ]]; then   
     cp /calibre/defaults/import.config /calibre/config/import.config
 fi
 
-if [[ ! -f /calibre/library/metadata.db]]; then   
+if [[ ! -f /calibre/library/metadata.db ]]; then   
     cp /calibre/defaults/metadata.db/calibre/library/metadata.db
 fi
 

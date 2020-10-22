@@ -22,15 +22,13 @@ Container mount point | Function
 | Variable(=Default) | Function | 
 | --- | --- |
 | UMASK_SET=022 | umask value for entrypoint functions | 
-| IMPORT_TIME=10m | How long to wait before looking for files to import. A value to be understood by `sleep` (integer{h,m,s}). |
+| IMPORT_TIME=10m | How long to wait before looking for files to import. A value to be understood by `sleep` (`integer{h,m,s}`). |
 
 
 ### import.config
 This goes in /image_root/calibre/config/import.config. The recommended way to use this file is to mount from host, but you can place it there before build if you wish.
 
-Each line in this file is a config for an import rule as such:
-       `<subfolderof /calibre/import> <command with arguments>`
-
+Each line in this file is an an import rule like: `<subfolder of /calibre/import> <command with arguments>`
 - `entrypoint.sh` assumes that the command is run as `<command with arguments> <input file> `
 - You can chain commands using ;, &&, || etc. Or you can point to a shell script, in which case please refer to the file as $1.
 - Do not wrap command in "" unless you want to pass no command (as below).  You can do so if you want a folder with a space, but why?

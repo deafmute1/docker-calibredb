@@ -10,8 +10,9 @@ RUN apt-get update && \
     apt-get install -y \
         # I am sticking with python2 calibre in buster that is fairly old - 3.39.1 vs 5.3.0 in stable and testing)
         # As this is a headless install I do not see the need for a newer version and 
-        # v5 uses python3 which breaks compatibility with many plugins such as the popular DeDRM.
+        # v5 uses python3 which breaks compatibility with DeDRM.
         # If you wish to include newer v5 calibre build from debian:bullseye/recent ubuntu or use the official calibre install script instead of apt.
+        # Unforunately installing calibre pulls in a tangled web of dependancies that we mostly don't use in headless mode but we can't uncouple the CLI from the GUI.
         calibre \
         # all apt/pip below this point is for kcc
         python3 \
@@ -36,6 +37,6 @@ RUN apt-get update && \
 
 COPY image_root/ /
 
-RUN calibre-customize --add-plugin /plugins/DeDRM_6.8.0.zip
+RUN calibre-customize --add-plugin plugins/DeDRM_6.8.0.zip
 
 ENTRYPOINT ["/entrypoint.sh"]

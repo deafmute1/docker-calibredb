@@ -6,6 +6,7 @@ services:
         environment:
             - UMASK_SET=002 
             - IMPORT_TIME=15m
+            - DELETE_IMPORTED=true
         volumes:
             - /var/ddata/calibre/calibre-config:/calibre/config
             - /var/ddata/calibre/import:/calibre/import
@@ -14,5 +15,4 @@ services:
             restart_policy:
                 condition: on-failure
                 delay: 60s
-                max_attempts: 5        
-
+                max_attempts: 5

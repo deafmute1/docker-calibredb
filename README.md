@@ -25,7 +25,7 @@ Container mount point | Function
 | --- | --- |
 | UMASK_SET=022 | umask value for entrypoint functions | 
 | IMPORT_TIME=10m | How long to wait before looking for files to import. A value to be understood by `sleep` (`$integer{h,m,s}`). |
-| DELETE_IMPORT=False | If true, delete files after import (calibre will not import duplicates, but it may cause performance issues later)
+| DELETE_IMPORTED=False | If true, delete files after import (calibre will not import duplicates, but it may cause performance issues later)
 
 ### /calibre/config/imports:
 The recommended way to use this file is to mount /calibre/config  from host (you can also place it in /image_root/... and build).
@@ -35,7 +35,7 @@ Each line in this file is an an import rule like: `<subfolder of /calibre/import
 - You can chain commands using ;, &&, || etc. Or you can point to a shell script, in which case please refer to the file as $1.
 - Do not use  "", #, " " or empty lines anywhere in this file, it will break things (TODO: better error prevention for imports)
 
-** Examples: **
+**Examples:**
 imports line for subdirectory untouched, which runs no modification to files
 `untouched`
 imports line for manga

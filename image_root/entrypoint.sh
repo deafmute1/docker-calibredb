@@ -24,7 +24,7 @@ if [[ ! -d /var/log/calibre ]]; then
     mkdir -p /var/log/calibre 
 fi
 touch /var/log/calibre/entrypoint.log
-ln -s /var/log/calibre/entrypoint.log /dev/stdout
+ln -sf /var/log/calibre/entrypoint.log /dev/stdout #force as /dev/stdout exists
 exec 3>&1 4>&2
 trap 'exec 2>&4 1>&3' 0 1 2 3
 exec 1>/var/log/calibre/entrypoint.log 2>&1

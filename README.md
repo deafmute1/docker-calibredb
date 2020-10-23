@@ -4,7 +4,10 @@ calibredb is a docker image intended to provide a headless calibre library for u
 - [calibre](https://manual.calibre-ebook.com/generated/en/cli-index.html)
 - [Kindle Comic Converter/KCC](https://github.com/ciromattia/kcc) (drop the .py when calling kcc-c2e) 
 
-**Get it on [docker hub](https://hub.docker.com/repository/docker/deafmute/calibredb)**
+**Get it on [docker hub](https://hub.docker.com/repository/docker/deafmute/calibredb)**, using autobuild tags:
+- `latest`: autobuilds from master branch.
+- `testing`: autobuilds from testing branch (not intended for real world use).
+- `version-*` builds from tagged releases.
 
 ## Configuration:
 Please refer to `docker-compose.yaml.example` for example deployment (my personal deployment). You need to modify imports per your own requirements. It is impossible to headlessly initalise the calibre database so a pre-created, empty metadata.db file has been supplied under `/image_root/calibre/defaults/metadata.db` and will be copied into place if there is no existing metadata.db. I used the same calibre version as the image to create `metadata.db` - you may have issues if you bring a metadata.db from newer versions (v5+) as this image is still running the old python2 version of calibre (v3.39.1).
@@ -37,10 +40,10 @@ Each line in this file is an an import rule like: `<subfolder of /calibre/import
 
 **Examples:**
 
-imports line for subdirectory untouched, which runs no modification to files
+imports line for subdirectory untouched, which runs no modification to files:
 
 `untouched`
 
-imports line for manga
+imports line for manga:
 
 `manga kcc-c2e -m -f MOBI`

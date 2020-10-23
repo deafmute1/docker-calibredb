@@ -37,10 +37,8 @@ Each line in this file is an an import rule like: `<subfolder of /calibre/import
 - You can chain commands using ;, &&, || etc. Or you can point to a shell script, in which case please refer to the file as $1.
 - Do not wrap command in " " unless you want to pass no command (as below).  You can do so if you want a folder with a space, but why?
 
-``` sh
-# default config with a single import directory with no modification on files
- default "" 
+config line with a single import directory with no modification on files
+`default "" `
 
-# config for converting manga to mobi
-manga kcc-c2e -m -f MOBI
- ``` 
+config line for manga
+`manga kcc-c2e -m -f MOBI`

@@ -48,6 +48,13 @@ if [[ -f /calibre/config/import.config ]];  then
         if [[ ! -d "/calibre/import/${folder}" ]]; then
             mkdir -p "/calibre/import/${folder}"
         fi
+        # remove for master release
+        # dump vars
+        echo "$folder"
+        echo "$args"
+        # dump array
+        "${!importDict[@]}"
+        "${importDict[@]}"
     done < /calibre/config/import.config
 fi
 

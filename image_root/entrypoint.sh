@@ -9,7 +9,7 @@ function modifier () {
     fi
     prevFileCount=$(find "/calibre/import/${folder}" -type f -printf '.' | wc -c)
     ${importDict[$2]} "$1"
-    # check if command created a new file, delete if so 
+    # check if command created a new file, delete original if so 
     if [[ $(find "/calibre/import/${folder}" -type f -printf '.' | wc -c) -gt $prevFileCount ]]; then  
         rm "$1"
     fi
@@ -42,7 +42,7 @@ fi
 if [[ -f /calibre/config/import.config ]]; then
     declare -A importDict
     while read -r folder args; do
-        importDict["$folder"]="$args"
+        importDict[$folder]=$args
         # create folder if it doesn't exist
         if [[ ! -d "/calibre/import/${folder}" ]]; then
             mkdir -p "/calibre/import/${folder}"

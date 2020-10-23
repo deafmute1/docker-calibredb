@@ -42,6 +42,9 @@ fi
 if [[ -f /calibre/config/import.config ]]; then
     declare -A importDict
     while read -r folder args; do
+        if [[ "$folder" == "#" ]]; then #skip comments
+            continue
+        fi
         importDict[$folder]=$args
         # create folder if it doesn't exist
         if [[ ! -d "/calibre/import/${folder}" ]]; then

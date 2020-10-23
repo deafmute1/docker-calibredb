@@ -4,7 +4,9 @@
 # run's user modification command
 # $1 = file (with path), $2 = parent folder
 function modifier () {
-    if [[ ${importDict[$2]} == "" ]]; then # "" denotes no command to apply
+    set -x 
+    eval "$importDictDefinition" 
+    if [[ ${importDict[$2]} == "" ]]; then # "" = no command 
         return 0
     fi
     prevFileCount=$(find "/calibre/import/${folder}" -type f -printf '.' | wc -c)
@@ -17,19 +19,20 @@ function modifier () {
 }
 
 ### SETUP
-#setup logs and ln to stdout for docker log command
-if [[ ! -d /var/log/calibre ]]; then
-    mkdir -p /var/log/calibre 
-fi
-touch /var/log/calibre/entrypoint.log
-ln -sf /var/log/calibre/entrypoint.log /dev/stdout #force as /dev/stdout exists
+# setup log
 exec 3>&1 4>&2
 trap 'exec 2>&4 1>&3' 0 1 2 3
-exec 1>/var/log/calibre/entrypoint.log 2>&1
+exec 1>/calibre/config/entrypoint.log 2>&1
+
+# setup environment
+set -x # verbose trace output, probably don't need this in final
+umask "$UMASK_SET"
+su - root # make sure we're root, this should happen anyway
+export -f modifier # add functions to env for find -exec, bash -c etc.
 
 # setup defaults if necessary, should only happen on first run
-if [[ ! -f /calibre/config/import.config ]]; then   
-    cp /calibre/defaults/import.config /calibre/config/import.config
+if [[ ! -f /calibre/config/imports ]]; then   
+    cp /calibre/defaults/imports /calibre/config/imports
 fi
 
 if [[ ! -f /calibre/library/metadata.db ]]; then   
@@ -37,38 +40,39 @@ if [[ ! -f /calibre/library/metadata.db ]]; then
 fi
 
 # generate import rules
-if [[ -f /calibre/config/import.config ]];  then
+if [[ -f /calibre/config/imports ]];  then
     declare -A importDict
     while read -r folder args; do
-        if [[ "$folder" == "#"* ]] || [[ "$folder" == ""* ]]  || [[ "$folder" == " "* ]]; then #skip comments and empty lines
-            continue
-        fi
-        importDict[$folder]=$args
+        importDict["$folder"]="$args"
         # create folder if it doesn't exist
         if [[ ! -d "/calibre/import/${folder}" ]]; then
             mkdir -p "/calibre/import/${folder}"
         fi
-        # remove for master release
-        # dump vars
-        echo "$folder"
-        echo "$args"
-        # dump array
-        echo "${!importDict[@]}"
-        echo "${importDict[@]}"
-    done < /calibre/config/import.config
+    done < "/calibre/config/imports"
+    importDictDefinition="$(declare -p importDict)" # allow export of array to child shell using its definition and eval
+    export importDictDefinition
 fi
+
+# run additional setup scripts
+for script in /calibre/config/bash.setup.d/*; do
+    bash "$script" -H || break
+done
 
 ### MAIN 
 while true; do
     for folder in "${!importDict[@]}"; do
         # use workingDir to prevent issues arising from writes to $folder between/during steps 
         workingDir=/tmp/calibre_import-$RANDOM
-        mkdir $workingDir
-        cp /calibre/import/"$folder"/* $workingDir
-        find "$workingDir" -type f -exec sh -c 'modifier "$1" "$folder"' _ {} \; 
+        mkdir "$workingDir"
+        cp /calibre/import/"$folder"/* "$workingDir"
+        find "$workingDir" -type f -exec bash -c 'modifier "$1" "$2"' _ {} "$folder" \; 
         find "$workingDir" -type f -exec sh -c 'calibredb add --with-library /calibre/library "$1"; -exec rm -r "$1"' _ {} \;
+        rm -r  "$workingDir"
+        if [[ $DELETE_IMPORTED == true ]]; then
+            rm -r /calibre/import/"$folder"/*
+        fi
     done 
-    for script in /calibre/config/bash.d/*; do
+    for script in /calibre/config/bash.timer.d/*; do
         bash "$script" -H || break
     done
     sleep "$IMPORT_TIME"

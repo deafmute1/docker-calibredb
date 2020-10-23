@@ -4,7 +4,7 @@ LABEL version="0.1 beta"
 LABEL calibre_version="3.39.1"
 LABEL default metadata.db_version="3.39.1 - from Debian Buster VM."
 
-ENV IMPORT_TIME=10m UMASK_SET=022
+ENV IMPORT_TIME=10m UMASK_SET=022 DELETE_IMPORTED=false
 
 RUN apt-get update && \
     apt-get install -y \

@@ -53,8 +53,8 @@ if [[ -f /calibre/config/import.config ]];  then
         echo "$folder"
         echo "$args"
         # dump array
-        "${!importDict[@]}"
-        "${importDict[@]}"
+        echo "${!importDict[@]}"
+        echo "${importDict[@]}"
     done < /calibre/config/import.config
 fi
 

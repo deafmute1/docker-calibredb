@@ -24,7 +24,7 @@ Container mount point | Function
 | Variable(=Default) | Function | 
 | --- | --- |
 | UMASK_SET=022 | umask value for entrypoint functions | 
-| IMPORT_TIME=10m | How long to wait before looking for files to import. A value to be understood by `sleep` (`$integer{h,m,s}`). |
+| IMPORT_TIME=10m | How long to wait before looking for files to import. A value to be understood by `sleep` (`$some_integer{h,m,s}`). |
 | DELETE_IMPORTED=False | If true, delete files after import (calibre will not import duplicates, but it may cause performance issues later)
 
 ### /calibre/config/imports:
@@ -38,7 +38,9 @@ Each line in this file is an an import rule like: `<subfolder of /calibre/import
 **Examples:**
 
 imports line for subdirectory untouched, which runs no modification to files
+
 `untouched`
 
 imports line for manga
+
 `manga kcc-c2e -m -f MOBI`

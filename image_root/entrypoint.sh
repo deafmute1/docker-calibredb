@@ -64,7 +64,7 @@ while true; do
         # use workingDir to prevent issues arising from writes to $folder between/during steps 
         workingDir=/tmp/calibre_import-$RANDOM
         mkdir "$workingDir"
-        cp /calibre/import/"$folder"/* "$workingDir"
+        cp -r /calibre/import/"$folder"/* "$workingDir"
         find "$workingDir" -type f -exec bash -c 'modifier "$1" "$2"' _ {} "$folder" \; 
         find "$workingDir" -type f -exec sh -c 'calibredb add --with-library /calibre/library "$1"; -exec rm -r "$1"' _ {} \;
         rm -r  "$workingDir"

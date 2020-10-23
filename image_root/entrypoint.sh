@@ -17,8 +17,6 @@ function modifier () {
 }
 
 ### SETUP
-umask "$UMASK_SET"
-
 #setup logs and ln to stdout for docker log command
 if [[ ! -d /var/log/calibre ]]; then
     mkdir -p /var/log/calibre 
@@ -39,10 +37,10 @@ if [[ ! -f /calibre/library/metadata.db ]]; then
 fi
 
 # generate import rules
-if [[ -f /calibre/config/import.config ]]; then
+if [[ -f /calibre/config/import.config ]];  then
     declare -A importDict
     while read -r folder args; do
-        if [[ "$folder" == "#" ]]; then #skip comments
+        if [[ "$folder" == "#"* ]] || [[ "$folder" == ""* ]]  || [[ "$folder" == " "* ]]; then #skip comments and empty lines
             continue
         fi
         importDict[$folder]=$args

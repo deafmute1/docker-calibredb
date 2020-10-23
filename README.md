@@ -1,10 +1,10 @@
 # docker-calibredb
-calibredb is a docker image intended to provide a headless calibre library for use with calibre-web, COPS or similar. It supports automatic imports from a mounted host directory, with the ability to run custom modification via shell commands to the files prior to import based on subfolders. All relevant file types are supported, except multi-file versions of single library entries, such as unarchived manga. Currently, the image provides access to the following packages/binaries which can be used to modify files before import:
+calibredb is a docker image intended to provide a headless calibre library for use with calibre-web, COPS or similar. It supports automatic imports from a mounted host directory, with the ability to run custom modification via shell commands to the files prior to import based on subfolders. It includes the calibre plugin DeDRM. All relevant file types are supported, except multi-file versions of single library entries, such as unarchived manga. Currently, the image provides access to the following packages/binaries which can be used to modify files before import:
 
 - [calibre](https://manual.calibre-ebook.com/generated/en/cli-index.html)
 - [Kindle Comic Converter/KCC](https://github.com/ciromattia/kcc) (drop the .py when calling kcc-c2e) 
 
-Includes calibre plugin DeDRM as well. 
+**Get it on [docker hub](https://hub.docker.com/repository/docker/deafmute/calibredb)**
 
 ## Configuration:
 Please refer to `docker-compose.yaml.example` for example deployment (my personal deployment). You need to modify imports per your own requirements. It is impossible to headlessly initalise the calibre database so a pre-created, empty metadata.db file has been supplied under `/image_root/calibre/defaults/metadata.db` and will be copied into place if there is no existing metadata.db. I used the same calibre version as the image to create `metadata.db` - you may have issues if you bring a metadata.db from newer versions (v5+) as this image is still running the old python2 version of calibre (v3.39.1).
@@ -36,7 +36,9 @@ Each line in this file is an an import rule like: `<subfolder of /calibre/import
 - Do not use  "", #, " " or empty lines anywhere in this file, it will break things (TODO: better error prevention for imports)
 
 **Examples:**
+
 imports line for subdirectory untouched, which runs no modification to files
 `untouched`
+
 imports line for manga
 `manga kcc-c2e -m -f MOBI`

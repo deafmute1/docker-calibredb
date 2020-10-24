@@ -75,6 +75,7 @@ while true; do
     for script in /calibre/config/bash.timer.d/*; do
         bash "$script" -H || break
     done
+    chown -R "$LIBRARY_UID":"$LIBRARY_GID" /calibre/library
     sleep "$IMPORT_TIME"
 done
 

@@ -27,8 +27,10 @@ Container mount point | Function
 | Variable(=Default) | Function | 
 | --- | --- |
 | UMASK_SET=022 | umask value for entrypoint functions | 
-| IMPORT_TIME=10m | How long to wait before looking for files to import. A value to be understood by `sleep` (`$some_integer{h,m,s}`). |
-| DELETE_IMPORTED=False | If true, delete files after import (calibre will not import duplicates, but it may cause performance issues later)
+| IMPORT_TIME=10m | How long to wait before looking for files to import (a value to be understood by `sleep`)|
+| DELETE_IMPORTED=false | If true, delete files after import (calibre will not import duplicates, but it may cause performance issues later) |
+| LIBRARY_UID=1000 | chown library directory to this user |
+| LIBRARY_GID=1000 | chown library directory to this group |
 
 ### /calibre/config/imports:
 The recommended way to use this file is to mount /calibre/config  from host (you can also place it in /image_root/... and build).

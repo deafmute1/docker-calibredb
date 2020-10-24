@@ -1,10 +1,10 @@
 FROM debian:buster
 LABEL maintainer=me@ethandjeric.com
-LABEL version="0.1 beta"
+LABEL version="1.0-git_latest"
 LABEL calibre_version="3.39.1"
 LABEL default metadata.db_version="3.39.1 - from Debian Buster VM."
 
-ENV IMPORT_TIME=10m UMASK_SET=022 DELETE_IMPORTED=false
+ENV IMPORT_TIME=10m UMASK_SET=022 DELETE_IMPORTED=false LIBRARY_UID=1000 LIBRARY_GID=1000
 
 RUN apt-get update && \
     apt-get install -y \

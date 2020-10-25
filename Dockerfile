@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM i386/debian:buster
 LABEL maintainer=me@ethandjeric.com
 LABEL version="1.0-git_latest"
 LABEL calibre_version="3.39.1"

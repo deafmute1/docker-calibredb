@@ -1,4 +1,4 @@
-FROM i386/debian:buster
+FROM debian:buster
 LABEL maintainer=me@ethandjeric.com
 LABEL version="1.0-git_latest"
 LABEL calibre_version="3.39.1"
@@ -33,7 +33,11 @@ RUN apt-get update && \
         /tmp/* \
 	    /var/lib/apt/lists/* \
         /var/cache/apt/* \
-	    /var/tmp/* 
+	    /var/tmp/* && \
+    # multi arch for i386 kindlegen binary support
+    dpkg --add-architecture i386 && \
+    apt-get update && \
+    apt-get install libc6-i386 
 
 COPY image_root/ /
 

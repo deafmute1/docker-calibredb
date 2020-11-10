@@ -78,10 +78,3 @@ while true; do
     chown -R "$LIBRARY_UID":"$LIBRARY_GID" /calibre/library
     sleep "$IMPORT_TIME"
 done
-
-        
-
-
-
-
-

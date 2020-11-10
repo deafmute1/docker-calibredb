@@ -1,6 +1,6 @@
 FROM debian:buster
 LABEL maintainer="Ethan Djeric - me@ethandjeric.com"
-LABEL version="1.1-git-latest"
+LABEL version="1.2"
 LABEL calibre_version="3.39.1"
 LABEL metadata.db_version="3.39.1-debian10"
 

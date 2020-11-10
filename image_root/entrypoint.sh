@@ -4,7 +4,6 @@
 # run's user modification command
 # $1 = file (with path), $2 = parent folder
 function modifier () {
-    set -x 
     eval "$importDictDefinition" 
     if [[ ${importDict[$2]} == "" ]]; then # "" = no command 
         return 0
@@ -25,7 +24,6 @@ trap 'exec 2>&4 1>&3' 0 1 2 3
 exec 1>/calibre/config/entrypoint.log 2>&1
 
 # setup environment
-set -x # verbose trace output, probably don't need this in final
 umask "$UMASK_SET"
 su - root # make sure we're root, this should happen anyway
 export -f modifier # add functions to env for find -exec, bash -c etc.

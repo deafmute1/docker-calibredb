@@ -25,16 +25,11 @@ exec 1>/calibre/config/entrypoint.log 2>&1
 
 # setup environment
 umask "$UMASK_SET"
-export -f modifier # add functions to env for find -exec, bash -c etc.
+export -f modifier # add functions to env
 
 # setup defaults if necessary, should only happen on first run
-if [[ ! -f /calibre/config/imports ]]; then   
-    cp /calibre/defaults/imports /calibre/config/imports
-fi
-
-if [[ ! -f /calibre/library/metadata.db ]]; then   
-    cp /calibre/defaults/metadata.db /calibre/library/metadata.db
-fi
+[[ ! -f /calibre/config/imports ]] && cp /calibre/defaults/imports /calibre/config/imports
+[[ ! -f /calibre/library/metadata.db ]] && cp /calibre/defaults/metadata.db /calibre/library/metadata.db
 
 # generate import rules
 if [[ -f /calibre/config/imports ]];  then
@@ -46,7 +41,8 @@ if [[ -f /calibre/config/imports ]];  then
             mkdir -p "/calibre/import/${folder}"
         fi
     done < "/calibre/config/imports"
-    importDictDefinition="$(declare -p importDict)" # allow export of array to child shell using its definition and eval
+    # allow export of array to child shell using its definition and eval
+    importDictDefinition="$(declare -p importDict)" 
     export importDictDefinition
 fi
 
@@ -62,12 +58,13 @@ while true; do
         workingDir=/tmp/calibre_import-$RANDOM
         mkdir "$workingDir"
         cp -r /calibre/import/"$folder"/* "$workingDir"
+        # use find to run modifications, then import on each file below $folder
+        # not that find -exec creates a subshell
         find "$workingDir" -type f -exec bash -c 'modifier "$1" "$2"' _ {} "$folder" \; 
         find "$workingDir" -type f -exec sh -c 'calibredb add --with-library /calibre/library "$1"; -exec rm -r "$1"' _ {} \;
+        # clean up
         rm -r  "$workingDir"
-        if [[ $DELETE_IMPORTED == true ]]; then
-            rm -r /calibre/import/"$folder"/*
-        fi
+        [[ $DELETE_IMPORTED == true ]] && rm -r /calibre/import/"$folder"/*
     done 
     for script in /calibre/config/bash.timer.d/*; do
         bash "$script" -H || break

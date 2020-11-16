@@ -4,7 +4,7 @@ LABEL version="1.2"
 LABEL calibre_version="3.39.1"
 LABEL metadata.db_version="3.39.1-debian10"
 
-ENV IMPORT_TIME=10m UMASK_SET=022 DELETE_IMPORTED=false LIBRARY_UID=1000 LIBRARY_GID=1000
+ENV IMPORT_TIME=10m UMASK_SET=022 DELETE_IMPORTED=false LIBRARY_UID=1000 LIBRARY_GID=1000 VERBOSE=false
 
 RUN apt-get update && \
     apt-get install -y \

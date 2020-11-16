@@ -31,6 +31,7 @@ Container mount point | Function
 | DELETE_IMPORTED=false | If true, delete files after import (calibre will not import duplicates, but it may cause performance issues later) |
 | LIBRARY_UID=1000 | chown library directory to this user |
 | LIBRARY_GID=1000 | chown library directory to this group |
+| VERBOSE=false | enables highly verbose (set -x) mode for entrypoint.log |
 
 ### /calibre/config/imports:
 The recommended way to use this file is to mount /calibre/config  from host (you can also place it in /image_root/... and build).

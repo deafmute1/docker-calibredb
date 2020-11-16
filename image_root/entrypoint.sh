@@ -25,7 +25,6 @@ exec 1>/calibre/config/entrypoint.log 2>&1
 
 # setup environment
 umask "$UMASK_SET"
-su - root # make sure we're root, this should happen anyway
 export -f modifier # add functions to env for find -exec, bash -c etc.
 
 # setup defaults if necessary, should only happen on first run

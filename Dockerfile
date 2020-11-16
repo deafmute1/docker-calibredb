@@ -39,6 +39,6 @@ RUN apt-get update && \
 
 COPY image_root/ /
 
+USER root
 RUN calibre-customize --add-plugin /calibre/plugins/DeDRM_6.8.0.zip
-
 ENTRYPOINT ["/entrypoint.sh"]

@@ -5,15 +5,13 @@
 # $1 = file (with path), $2 = parent folder
 function modifier () {
     eval "$importDictDefinition" 
-    if [[ ${importDict[$2]} == "" ]]; then # "" = no command 
-        return 0
-    fi
+    # "" = no command 
+    [[ ${importDict[$2]} == "" ]] && return 0
     prevFileCount=$(find "/calibre/import/${folder}" -type f -printf '.' | wc -c)
+    # run modification
     ${importDict[$2]} "$1"
     # check if command created a new file, delete original if so 
-    if [[ $(find "/calibre/import/${folder}" -type f -printf '.' | wc -c) -gt $prevFileCount ]]; then  
-        rm "$1"
-    fi
+    [[ $(find "/calibre/import/${folder}" -type f -printf '.' | wc -c) -gt $prevFileCount ]] && rm "$1"
     return 0
 }
 
@@ -22,6 +20,7 @@ function modifier () {
 exec 3>&1 4>&2
 trap 'exec 2>&4 1>&3' 0 1 2 3
 exec 1>/calibre/config/entrypoint.log 2>&1
+[[ "$VERBOSE" == true ]] && set -x
 
 # setup environment
 umask "$UMASK_SET"
@@ -37,9 +36,7 @@ if [[ -f /calibre/config/imports ]];  then
     while read -r folder args; do
         importDict["$folder"]="$args"
         # create folder if it doesn't exist
-        if [[ ! -d "/calibre/import/${folder}" ]]; then
-            mkdir -p "/calibre/import/${folder}"
-        fi
+        [[ ! -d "/calibre/import/${folder}" ]] && mkdir -p "/calibre/import/${folder}"
     done < "/calibre/config/imports"
     # allow export of array to child shell using its definition and eval
     importDictDefinition="$(declare -p importDict)" 
@@ -59,9 +56,9 @@ while true; do
         mkdir "$workingDir"
         cp -r /calibre/import/"$folder"/* "$workingDir"
         # use find to run modifications, then import on each file below $folder
-        # not that find -exec creates a subshell
-        find "$workingDir" -type f -exec bash -c 'modifier "$1" "$2"' _ {} "$folder" \; 
-        find "$workingDir" -type f -exec sh -c 'calibredb add --with-library /calibre/library "$1"; -exec rm -r "$1"' _ {} \;
+        # note that find -exec creates a subshell; set -x also does not apply to subshells.
+        find "$workingDir" -type f -exec bash -c '[[ "$VERBOSE" == true ]] && set -x; modifier "$1" "$2"' _ {} "$folder" \; 
+        find "$workingDir" -type f -exec bash -c '[[ "$VERBOSE" == true ]] && set -x; calibredb add --with-library /calibre/library "$1"' _ {} \;
         # clean up
         rm -r  "$workingDir"
         [[ $DELETE_IMPORTED == true ]] && rm -r /calibre/import/"$folder"/*

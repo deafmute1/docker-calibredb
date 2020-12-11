@@ -1,6 +1,6 @@
 FROM debian:buster
-LABEL maintainer="Ethan Djeric - me@ethandjeric.com"
-LABEL version="1.2"
+LABEL maintainer="me@ethandjeric.com"
+LABEL version="1.2-git"
 LABEL calibre_version="3.39.1"
 LABEL metadata.db_version="3.39.1-debian10"
 
@@ -12,7 +12,7 @@ RUN apt-get update && \
     # As this is a headless install I do not see the need for a newer version and v5 uses python3 which breaks compatibility with DeDRM.
     # If you wish to include newer v5 calibre build from debian:bullseye/recent, ubuntu or use the official calibre install script instead of apt.
         calibre \
-    # kcc (apt +pip)
+    # install kcc and deps
         python3 \
         python3-wheel \
         python3-dev \
@@ -30,6 +30,7 @@ RUN apt-get update && \
     dpkg --add-architecture i386 && \
     apt-get update && \
     apt-get install libc6-i386 && \
+    # clean up
     apt-get clean && \
     rm -rf \
         /tmp/* \
@@ -40,5 +41,7 @@ RUN apt-get update && \
 COPY image_root/ /
 
 USER root
+
 RUN calibre-customize --add-plugin /calibre/plugins/DeDRM_6.8.0.zip
+
 ENTRYPOINT ["/entrypoint.sh"]

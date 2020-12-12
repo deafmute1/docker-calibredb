@@ -57,8 +57,8 @@ while true; do
         cp -r /calibre/import/"$folder"/* "$workingDir"
         # use find to run modifications, then import on each file below $folder
         # note that find -exec creates a subshell; set -x also does not apply to subshells.
-        find "$workingDir" -type f -exec bash -c '[[ "$VERBOSE" == true ]] && set -x; modifier "$1" "$2"' _ {} "$folder" \; 
-        find "$workingDir" -type f -exec bash -c '[[ "$VERBOSE" == true ]] && set -x; calibredb add --with-library /calibre/library "$1"' _ {} \;
+        find "$workingDir" -type f -exec bash -c '[[ "$VERBOSE" == true ]]; modifier "$1" "$2"' _ {} "$folder" \; 
+        find "$workingDir" -type f -exec bash -c '[[ "$VERBOSE" == true ]]; calibredb add --with-library /calibre/library "$1"' _ {} \;
         # clean up
         rm -r  "$workingDir"
         [[ $DELETE_IMPORTED == true ]] && rm -r /calibre/import/"$folder"/*

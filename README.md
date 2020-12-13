@@ -1,8 +1,8 @@
 # docker-calibredb
-calibredb is a docker image intended to provide a headless calibre library for use with calibre-web, COPS or similar. It supports automatic imports from a mounted host directory, with the ability to run custom modification via shell commands to the files prior to import based on subfolders. It includes the calibre plugin DeDRM. All relevant file types are supported, except multi-file versions of single library entries, such as unarchived manga. Currently, the image provides access to the following packages/binaries which can be used to modify files before import:
+calibredb is a docker image intended to provide a headless calibre library for use with calibre-web, COPS or similar. It supports automatic imports from a mounted host directory, with the ability to run custom modification via shell commands to the files prior to import based on subfolders. It includes the calibre plugin DeDRM prebuilt into the image. All relevant file types are supported, except a single db item spread over multiple files. Currently, the image provides access to the following packages/binaries which can be used to modify files before import:
 
 - [calibre](https://manual.calibre-ebook.com/generated/en/cli-index.html)
-- [Kindle Comic Converter/KCC](https://github.com/ciromattia/kcc) (drop the .py when calling kcc-c2e) 
+- [Kindle Comic Converter/KCC](https://github.com/ciromattia/kcc) (`kcc-c2e` and `kcc-c2p` (do not call them as kcc-*.py))
 
 **Get it on [docker hub](https://hub.docker.com/repository/docker/deafmute/calibredb)**, using autobuild tags:
 - `deafmute/calibredb:latest`: autobuilds from master branch.
@@ -34,19 +34,20 @@ Container mount point | Function
 | VERBOSE=false | enables highly verbose (set -x) mode for entrypoint.log |
 
 ### /calibre/config/imports:
-The recommended way to use this file is to mount /calibre/config  from host (you can also place it in /image_root/... and build).
+The recommended way to use this file is to mount /calibre/config from host.
 
-Each line in this file is an an import rule like: `<subfolder of /calibre/import> <command with arguments>`
+Each line in this file is an an import rule as per this syntax: `<a subfolder of /calibre/import (no spaces)> <command with arguments, including spaces where necessary>`
 - `entrypoint.sh` assumes that the command is run as `<command with arguments> <input file> `
-- You can chain commands using ;, &&, || etc. Or you can point to a shell script, in which case please refer to the file as $1.
-- Do not use  "", #, " " or empty lines anywhere in this file, it will break things (TODO: better error prevention for imports)
+- You can chain commands using ;, &&, || etc. 
+- You can point to a shell script, in which case please refer to the file as variable `$1`.
+- Do not use  "", #, " " or empty lines anywhere in this file, it will break things - the file is read in from stdin to an array, it is not a bash file.
 
 **Examples:**
 
-imports line for subdirectory untouched, which runs no modification to files:
+import rule for files in directory /calibre/import/untouched, which runs no modification to files:
 
 `untouched`
 
-imports line for manga:
+import rule for files in directory /calibre/import/manga, which uses to kcc-c2e to generate a kindle-friendly mobi from manga archives:
 
 `manga kcc-c2e -m -f MOBI`

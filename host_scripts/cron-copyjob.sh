@@ -18,9 +18,9 @@ function CopySourceFileToAll() {
 
 }
 
-function help() {
+function HelpQuit() {
   echo "
-  cron-copyjob.sh for deafmute1/docker_calibredb v2
+  cron-copyjob.sh for deafmute1/docker_calibredb v2.1
   Ethan Djeric <me@ethandjeric.com>
 
   Monitors a source path for new files in some time interim, and copies new files to given directories. 
@@ -33,12 +33,12 @@ function help() {
   INTERIM and SOURCE are required, in addition to one or more of -m or -d.
 
   Positional Arguments:
-  INTERIM(*)    Time (in minutes) to look for new files (i.e. crontab job timer)
-  SOURCE(*)     Absolute path to a source directory, intended to be a top level directory to some high level
+  INTERIM      Time (in minutes) to look for new files (i.e. crontab job timer)
+  SOURCE       Absolute path to a source directory, intended to be a top level directory to some high level
                 directory containing subfolders with trees of unlimted depth that are flattened and move to one 
                 or more destinations.
 
-   Option(s):
+  Optional Arguments:
   -h, --help                    Print this information.
 
   -m,--matchsubs [PATH]         Absolute path to a top level directory to copy files at *(2) in SOURCE/*(1)/*(2) to 
@@ -46,23 +46,44 @@ function help() {
 
   -d, --directdir [SUBDIR] [DIR]  Just copy flattened files from [SUBDIR] (a directory in SOURCE), to some absolute path 
                                   specifed by [DIR]
+
+  --debug                         Enable debug settings (just set -x at this point)
   "
+  exit 0
+}
+
+function OptionNotSetQuit() {
+  echo "bad input; please provide path(s) after specifying -m/--matchsub or -d/--absolutedir" 
+  echo "To see help, use ${which} --help" 
+  exit 0 
+} 
+
+function NotEnoughArgsQuit() {
+  echo "Not enough arguments are set to meet minimum: INTERIM and SOURCE are required, in addition to one or more of -m or -d."                                                                                
+  echo "To see help, use ${which} --help "                                                                                                                                                                         
+  exit 0
 }
 
 # MAIN 
 # setup env
-set -euxo pipefail
+set -euo pipefail
 export -f CopySourceFileToAll 
+export which="$0"
+
+if [[ "$#" -lt 4 ]]; then
+  echo "Not enough arguments are set to meet minimum: INTERIM and SOURCE are required, in addition to one or more of -m or -d."
+  echo "To get help, use ${0} --help "
+  exit  
+fi 
 
 case "$1" in 
-  -h|-help|help) 
-    help 
-    exit 0 ;;
+  -h|-help|help) HelpQuit ;;
 
-  *) 
+  *)
+    [[ "$#" -lt 4 ]] && NotEnoughArgsQuit 
     timer="$1" 
     src="$2" 
-    shift 2;;
+    shift 2 ;;
 esac
 
 matchsubs=""
@@ -70,17 +91,20 @@ directdir=""
 while [[ "$#" -gt 0 ]]; do 
   case "$1" in
     -m|--matchsubs)
-      [[ ! "$2" == -* ]] && echo "bad input; please provide path(s) after specifying -m/--matchsub or -d/--absolutedir"
+      [[ ! "$2" == -* ]] && OptionNotSetQuit
       matchsubs="${matchsubs}${2};"
       shift 2 ;;
     
-    -d,--directdir)
-      [[ ! "$2" == -* || ! "$3" == -* ]] && echo "bad input; please provide path(s) after specifying -m/--matchsub or -d/--absolutedir" 
+    -d|--directdir)
+      [[ ! "$2" == -* || ! "$3" == -* ]]  && OptionNotSetQuit
       directdir="${directdir}${2}:${3};"
       shift 3 ;;
+      
+    --debug) set -x ;;
   esac
 done
 
+# Main Logic
 # use a negative value for `find -mmin` to find files newer then the positive value.
 # add +5 for safety - missing a file will result in it never being imported, but copying twice will just waste a little time in entrypoint.sh
 job_timer=$(( ("$timer" + 5) * -1 ))

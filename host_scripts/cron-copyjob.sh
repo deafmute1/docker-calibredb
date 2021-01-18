@@ -52,7 +52,7 @@ function help() {
 # MAIN 
 # setup env
 set -euxo pipefail
-export -f copyToArray 
+export -f CopySourceFileToAll 
 
 case "$1" in 
   -h|-help|help) 

@@ -1,115 +1,30 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# Takes a root source path ($1) and looks for new items to copy in first level subdirectories
+# These files are copied to the desination path ($2), maintaining the first level subdirectory
+# $3 specifies how old items to be included are in minutes (as an integer). Match this to a cron job.
+# intended to be used with calibredb env var DELETE_IMPORTED=true
 
 # FUNCTIONS
-function CopySourceFileToAll() {
-    # $1 = absolute path to a source file  
-    # $2 = subfolder it was found in
-  while IFS= read -r -d ';' matchsub; do
-     [[ ! -d "$matchsub" ]] && mkdir -p "$matchsub"
-    cp "$1" "${matchsub}/${2}"
-  done <<< "$matchsubs"
-
-  while IFS=':' read -r -d ';' dd_sub dd_dest; do
-    if [[ "$dd_sub" == "$2" ]]; then
-      [[ ! -d "$dd_dest" ]] && mkdir -p "$dd_dest"
-      cp "$1" "$dd_dest"
-    fi
-  done <<< "$directdir" 
-
+function copyToArray() {
+    # $1 = absolute path to a file 
+    cp "$1" "${destPath}/${subFolder}/"
+    if [[ -f "${2}/${subFolder}/.multicopy" ]]; then 
+        while read -r additionalFolders; do 
+            cp "$1" "${destPath}/${additionalFolders}/"
+        done < "${2}/${subFolder}/.multicopy"
+    fi 
 }
 
-function HelpQuit() {
-  echo "
-  cron-copyjob.sh for deafmute1/docker_calibredb v2.1
-  Ethan Djeric <me@ethandjeric.com>
-
-  Monitors a source path for new files in some time interim, and copies new files to given directories. 
-  Includes logic to match top level directory hierarchies between source and destination.
-  Intended to be used with environmental variable DELETE_IMPORTED=true in calibredb, and with interim 
-  matching a cron job calling the script. Also can be used with other servers such as komga.
-  
-  Usage: /path/to/cron-copyjob.sh INTERIM SOURCE [OPTION(S)]
-
-  INTERIM and SOURCE are required, in addition to one or more of -m or -d.
-
-  Positional Arguments:
-  INTERIM      Time (in minutes) to look for new files (i.e. crontab job timer)
-  SOURCE       Absolute path to a source directory, intended to be a top level directory to some high level
-                directory containing subfolders with trees of unlimted depth that are flattened and move to one 
-                or more destinations.
-
-  Optional Arguments:
-  -h, --help                    Print this information.
-
-  -m,--matchsubs [PATH]         Absolute path to a top level directory to copy files at *(2) in SOURCE/*(1)/*(2) to 
-                                PATH/*(1)/*(2), where any files in subfolders of *(2) are flattened into *(2) and copied.
-
-  -d, --directdir [SUBDIR] [DIR]  Just copy flattened files from [SUBDIR] (a directory in SOURCE), to some absolute path 
-                                  specifed by [DIR]
-
-  --debug                         Enable debug settings (just set -x at this point)
-  "
-  exit 0
-}
-
-function OptionNotSetQuit() {
-  echo "bad input; please provide path(s) after specifying -m/--matchsub or -d/--absolutedir" 
-  echo "To see help, use ${which} --help" 
-  exit 0 
-} 
-
-function NotEnoughArgsQuit() {
-  echo "Not enough arguments are set to meet minimum: INTERIM and SOURCE are required, in addition to one or more of -m or -d."                                                                                
-  echo "To see help, use ${which} --help "                                                                                                                                                                         
-  exit 0
-}
-
-# MAIN 
-# setup env
-set -euo pipefail
-export -f CopySourceFileToAll 
-export which="$0"
-
-if [[ "$#" -lt 4 ]]; then
-  echo "Not enough arguments are set to meet minimum: INTERIM and SOURCE are required, in addition to one or more of -m or -d."
-  echo "To get help, use ${0} --help "
-  exit  
-fi 
-
-case "$1" in 
-  -h|-help|help) HelpQuit ;;
-
-  *)
-    [[ "$#" -lt 4 ]] && NotEnoughArgsQuit 
-    timer="$1" 
-    src="$2" 
-    shift 2 ;;
-esac
-
-matchsubs=""
-directdir=""
-while [[ "$#" -gt 0 ]]; do 
-  case "$1" in
-    -m|--matchsubs)
-      [[ ! "$2" == -* ]] && OptionNotSetQuit
-      matchsubs="${matchsubs}${2};"
-      shift 2 ;;
-    
-    -d|--directdir)
-      [[ ! "$2" == -* || ! "$3" == -* ]]  && OptionNotSetQuit
-      directdir="${directdir}${2}:${3};"
-      shift 3 ;;
-      
-    --debug) set -x ;;
-  esac
-done
-
-# Main Logic
+# MAIN PROGRAM
 # use a negative value for `find -mmin` to find files newer then the positive value.
 # add +5 for safety - missing a file will result in it never being imported, but copying twice will just waste a little time in entrypoint.sh
-job_timer=$(( ("$timer" + 5) * -1 ))
+jobTimer=$(( ("$3" + 5) * -1 ))
 # parsing `find` into `for` is bad apparently, use while read instead
-while read -r sub_path; do
-  folder_name=$(basename "$sub_path")
-  find "$sub_path" -type f  -mmin "$job_timer"  -exec bash -c "copyToArray '$1' '$folder_name'"_ {} \;
-done < <(find "$src" -mindepth 1 -maxdepth 1 -type d)
+while read -r subPath; do
+    subFolder=$(basename "$subPath")
+    destPath="$2"
+    [[ ! -d "${destPath}/${subFolder}" ]] && mkdir -p "${destPath}/${subFolder}"
+    export subFolder destPath
+    export -f copyToArray 
+    find "$subPath" -type f  -mmin "$jobTimer" -not -name ".multicopy" -exec bash -c "copyToArray '$1'"_ {} \;
+done < <(find "$1" -mindepth 1 -maxdepth 1 -type d)

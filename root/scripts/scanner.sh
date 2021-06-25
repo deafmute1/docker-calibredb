@@ -26,5 +26,5 @@ while read -r subPath; do
     [[ ! -d "${destPath}/${subFolder}" ]] && mkdir -p "${destPath}/${subFolder}"
     export subFolder destPath
     export -f copyToArray 
-    find "$subPath" -type f  -mmin "$jobTimer" -not -name ".multicopy" -exec bash -c "copyToArray '$1'"_ {} \;
+    find "$subPath" -type f  -mmin "$jobTimer" -not -name ".multicopy" -exec bash -c 'copyToArray "$1"' discard {} \;
 done < <(find "$1" -mindepth 1 -maxdepth 1 -type d)

@@ -1,6 +1,6 @@
 FROM debian:buster
 LABEL maintainer="me@ethandjeric.com"
-LABEL version="1.2-git"
+LABEL version="1.3"
 LABEL calibre_version="3.39.1"
 LABEL metadata.db_version="3.39.1-debian10"
 
@@ -33,15 +33,15 @@ RUN apt-get update && \
     # clean up
     apt-get clean && \
     rm -rf \
-        /tmp/* \
+      /tmp/* \
 	    /var/lib/apt/lists/* \
-        /var/cache/apt/* \
+      /var/cache/apt/* \
 	    /var/tmp/*
 
-COPY image_root/ /
+COPY root/ /
 
 USER root
 
 RUN calibre-customize --add-plugin /calibre/plugins/DeDRM_6.8.0.zip
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/scripts/entrypoint.sh"]

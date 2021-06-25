@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
-# Runs some bash script, $1 every $2 minutes.
+# Runs some bash command every $1 minutes. The remaining paramters passed are interpreted as the command
+
+time="$1"
+shift
+comm="$@"
 
 while true; do 
-  bash "$1"
-  sleep "$2"
+  bash "$comm"
+  sleep "$time"
 done 

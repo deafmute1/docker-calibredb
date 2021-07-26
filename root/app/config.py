@@ -1,10 +1,10 @@
 # stdlib
-from pathlib import Path, PurePath 
+from pathlib import Path 
 import os 
 from runpy import run_path
 import re 
 import logging
-#internal 
+# internal 
 import exceptions
 
 LOG_LEVEL = getattr(logging, os.getenv('LOG_LEVEL').upper())
@@ -13,9 +13,9 @@ CALIBRE_ADD_COMMAND = os.getenv('CALIBRE_ADD_COMMAND', ['calibredb', 'add', '--a
 CALIBRE_PLUGIN_DIR = os.getenv('CALIBRE_PLUGIN_DIR', '/calibre/plugins/runtime')
 METADATA_DB = os.path.join(CALIBRE_LIBRARY, 'metadata.db')
 DEFAULT_METADATA_DB = os.getenv('DEFAULT_METADATA_DB', '/calibre/metadata.default.db')
-LIBRARY_UID = int(os.getenv('LIBRARY_UID', 1000)) 
+LIBRARY_UID = int(os.getenv('LIBRARY_UID', 1000))
 LIBRARY_GID = int(os.getenv('LIBRARY_GID', 1000))
-UMASK = oct(os.getenv('UMASK_SET', '0o22')) # needs to be passed as a decimal
+UMASK = oct(os.getenv('UMASK_SET', '0o22'))  # needs to be passed as a decimal
 
 CONFIG_PATH = Path(os.getenv("IMPORTER_CONFIG_PATH", "./watchcfg.py"))
 if not CONFIG_PATH.is_file(): 
@@ -30,7 +30,7 @@ if IMPORT_MODE not in VALID_IMPORT_MODES:
 WATCH = run_path(CONFIG_PATH)["WATCH"]
 VALID_WATCH_DICT_KEYS = ("source", "process", "move", "pattern")
 
-if ( not isinstance(WATCH, list) or any((not isinstance(e, dict) for e in WATCH))): 
+if (not isinstance(WATCH, list) or any((not isinstance(e, dict) for e in WATCH))): 
     raise exceptions.BadConfigValueException("Malformed data structure or types in WATCH value")
 
 if os.getenv('SOURCE') is not None: 
@@ -47,11 +47,8 @@ for i, rule in enumerate(WATCH):
 
     if rule.get('remove', None) is None: 
         WATCH[i]['remove'] = False 
-    
     rule = rule.get('pattern', None)
     if rule is None: 
         WATCH[i]['pattern'] = re.compile(r'.*')
     else: 
-        WATCH[i]['pattern'] = re.compile(rule) 
-
-
+        WATCH[i]['pattern'] = re.compile(rule)

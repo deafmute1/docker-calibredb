@@ -1,20 +1,19 @@
-#std 
+# std 
 from pathlib import Path
 import os  
 import subprocess
-import re
 import logging
-from typing import Union
 import time
 import signal
 import sys
 import shutil
-#internal 
+# internal 
 import exceptions
 import config 
-#3rd party 
+# 3rd party 
 import watchdog
 import schedule
+
 
 def setup(): 
     os.umask(config.UMASK)
@@ -24,8 +23,9 @@ def setup():
     for plugin in Path(config.CALIBRE_PLUGIN_DIR).iterdir():
         try:  
             subprocess.run(['calibre-customize', '--add-plugin', str(plugin)])
-        except Exception as e: 
+        except Exception: 
             logging.exception("Failed to import plugin {}".format(plugin))
+
 
 def wait_on_transfer(file: Path) -> None:
     size2 = -1
@@ -33,16 +33,17 @@ def wait_on_transfer(file: Path) -> None:
         size1 = file.stat().st_size
         if size1 == size2:
             break
-        sleep(2)
+        time.sleep(2)
         size2 = file.stat().st_size
+
 
 def import_file(fpath: Path, ruleset: dict) -> bool: 
     fpath = fpath.resolve()
     if not fpath.is_file():
-        raise exceptions.NotAFileException('IMPORT: Failed to import {} as it is not a file'.format(fpath))
+        raise exceptions.NotAFileException('IMPORT: Failed to import {} as it is not a file'.format(str(fpath)))
 
     if ruleset['pattern'] is not None and ruleset['pattern'].match(fpath) is None: 
-        logging.info('IMPORT: File {} did not match pattern {} and was not added'.format(fpath, pattern.pattern))
+        logging.info('IMPORT: File {} did not match pattern {} and was not added'.format(str(fpath), ruleset['pattern'].pattern))
         return False
 
     if ruleset['run'] is not None:  
@@ -63,10 +64,11 @@ def import_file(fpath: Path, ruleset: dict) -> bool:
         logging.info('IMPORT: Deleted original file at {}'.format(fpath))
     return True
 
-def import_all_files(root: Path, ruleset: dict) -> None:
+def import_all_files(ruleset: dict) -> None:
+    root = ruleset['source']
     if not root.is_dir(): 
-        raise exceptions.NotADirectoryException('Root folder {} is not a directory'.format(root))
-    for dirpath, dirname, fnames in os.walk(str(root)): 
+        raise exceptions.NotADirectoryException('Root folder {} is not a directory'.format(str(root)))
+    for dirpath, _, fnames in os.walk(str(root)): 
         for f in fnames:
             import_file(Path(dirpath).joinpath(f), ruleset)
 
@@ -77,7 +79,7 @@ class NewFileEventHandler(watchdog.events.FileSystemEventHandler):
     def on_any_event(self, event: watchdog.events.FileSystemEvent) -> None:
         if (
             event.event_type in (watchdog.events.EVENT_TYPE_CREATED, watchdog.events.EVENT_TYPE_MOVED) and 
-            not event.is_directory 
+            event.is_directory == False 
         ): 
             path = Path(event.src_path)
             wait_on_transfer(path)
@@ -114,8 +116,8 @@ class Main():
         sys.exit()
 
     def _enter_schedule_thread(self): 
-        while self.run.jobs != []: 
-            self.run.run_pending()
+        while self.scheduler.jobs != []: 
+            self.scheduler.run_pending()
             time.sleep(1)
         
         logging.critical("Job list empty (without manual intervention) - exiting")

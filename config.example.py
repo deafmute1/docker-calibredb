@@ -4,8 +4,7 @@
     or if that is unset, it defaults to ./config.py (where . is the directory that app/config.py is located). 
 """
 
-""" You can set these here, or anywhere else you can set system environmental variables (i.e. in docker run/compose)
-    
+""" You can set these here, or anywhere else you can set system environmental variables (i.e. in docker run/compose)    
     NB: os.environ is preferable to os.putenv, as setting via os.environ is reflected both in the os.environ dictionary 
     (which is loaded at python startup) and in the actual system envrionment (as os.putenv() is called when this mapping is updated).
 """
@@ -17,8 +16,8 @@ os.environ["LOG_LEVEL"] = "INFO"
     The only _required_ value is source. remove defaults to False, filter will be set to '.*' and process will be skipped
 """
 # Some predefined regex filters you may find useful - feel free to edit
-FILTER_EBOOK_EXT = '.*\.(epub|lrf|lrx|djvu|pdb|fb2|ibooks|azw|azw3|kf8|kf|mobi|lit|htm|html|pdf|txt|rtf|prc)$'
-FILTER_COMIC_EXT = '.*\.(cbr|cbz|cb7|cbt|cba|7z|zip|rar|tar.*|rar|jpg|jpeg|png)$'
+FILTER_EBOOK_EXT = r'.*\.(epub|lrf|lrx|djvu|pdb|fb2|ibooks|azw|azw3|kf8|kf|mobi|lit|htm|html|pdf|txt|rtf|prc)$'
+FILTER_COMIC_EXT = r'.*\.(cbr|cbz|cb7|cbt|cba|7z|zip|rar|tar.*|rar|jpg|jpeg|png)$'
 WATCH = [ 
     {
         "source": "/path/to/directory",  

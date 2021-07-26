@@ -1,3 +1,0 @@
-
-class BadConfigValueException(Exception): 
-    pass

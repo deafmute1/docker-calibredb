@@ -8,6 +8,7 @@ ENV IMPORT_TIME=10m UMASK_SET=022 DELETE_IMPORTED=false LIBRARY_UID=1000 LIBRARY
 
 RUN apt-get update && \
     apt-get install -y \
+    #TODO update DeDRM and use newer calibre build (ubuntu?)
     # I am sticking with python2 calibre in buster that is fairly old - 3.39.1 vs 5.3.0 in stable and testing)
     # As this is a headless install I do not see the need for a newer version and v5 uses python3 which breaks compatibility with DeDRM.
     # If you wish to include newer v5 calibre build from debian:bullseye/recent, ubuntu or use the official calibre install script instead of apt.

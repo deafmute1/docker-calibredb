@@ -1,0 +1,12 @@
+version: '3.0'
+
+services:
+    calibredb: 
+        image: calibredb:v2.0.0-3
+        environment:
+            - LOG_LEVEL=DEBUG
+            - TRANSFER_TIMEOUT=1
+        volumes:
+            - ./user_config.py:/config/user_config.py 
+            - ./import:/calibre/import
+            - ./library:/calibre/library

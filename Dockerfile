@@ -1,12 +1,16 @@
-FROM ubuntu:hirsuite
+FROM ubuntu:hirsute
 LABEL maintainer="ethan@ethandjeric.com"
-LABEL version="1.3"
+LABEL version="v2.0.0"
 LABEL metadata.default.db_version="3.39.1-debian10"
 
-RUN apt-get update && \
-    apt-get install -y \
-    # ubuntu hirsuite has calibre v5
+    # enable i386 for kindlegen support
+RUN dpkg --add-architecture i386 && \  
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        # ubuntu hirsuite has calibre v5
         calibre \ 
+        # kindlegen support
+        libc6-i386 \ 
     # install kcc and deps
         python3 \
         python3-wheel \
@@ -20,13 +24,10 @@ RUN apt-get update && \
         pillow \
         python-slugify==2.0.1 \
         psutil \ 
-        KindleComicConverter-headless && \
-    # install app requirements
-    pip3 install -r /app/requirements.txt && \
-    # multi arch for i386 kindlegen binary support
-    dpkg --add-architecture i386 && \
-    apt-get update && \
-    apt-get install libc6-i386 && \
+        KindleComicConverter-headless \
+    # install /app requirements
+        watchdog \ 
+        schedule && \
     # clean up
     apt-get clean && \
     rm -rf \
@@ -39,6 +40,6 @@ COPY root/ /
 
 USER root
 
-RUN calibre-customize --add-plugin /calibre/plugins/DeDRM_7.2.1.zip
+RUN /bin/sh /usr/local/bin/after_build.sh
 
-ENTRYPOINT ["python3", "/calibre/app/main.py"]
+ENTRYPOINT ["python3", "/app/main.py"]

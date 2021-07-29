@@ -1,5 +1,5 @@
 #!/bin/sh
-for file in /calibre/plugins/build/*; do 
+for file in /calibre/plugins/buildtime/*; do 
     calibre-customize --add-plugin "$file"
 done
 [ ! -d /config ] && mkdir /config 

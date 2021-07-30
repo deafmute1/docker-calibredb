@@ -33,15 +33,15 @@ There is no support for single entries spread across many files (i.e. unpacked c
 
 | Variable | Default | Description |  Valid values | 
 | --- | --- | --- | --- |
-| LOG_LEVEL | "INFO" | Set log berbosity | "DEBUG","INFO","WARNING","ERROR","CRITICAL" | 
+| LOG_LEVEL | "INFO" | Set log verbosity | "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL" | 
 | CALIBRE_LIBRARY | "/calibre/library" | Location of calibre library | Any directory |
-| CALIBRE_PLUGIN_DIR | "/calibre/plugins/runtime" | ALocation of folder containing plugins to be installed at container start | Any directory | 
+| CALIBRE_PLUGIN_DIR | "/calibre/plugins/runtime" | Location of folder containing plugins to be installed at container start | Any directory | 
 | LIBRARY_UID | 1000 | UID of user who owns the library (i.e. who should own files in CALIBRE_LIBRARY) | Any 32-bit int | 
 | LIBRARY_GID | 1000 | AS above, but for GID | Any 32-bit-int |
 | UMASK | 18 | The umask to run the program under (i.e. to create new files under), as an integer. Reminder that this represents the _unset_ permission bits of the resulting file (i.e. 18 (octal 022) results in file with perms 492 (octal 755)) | 0-511 |
 | USER_CONFIG_PATH | "/config/user_config.py" | Location of the user import rules, as described in [config.example.py](config.example.py) | Valid file path | 
 | TRANSFER_TIMEOUT | 15 | How long (in minutes) the program waits for a file to copy (before attempting import) before timeing out and skiping that file | Any int |  
-| IMPORT_MODE | "NEW" | See [import modes](#import-modes) | "NEW","ALL","ONESHOT" | 
+| IMPORT_MODE | "NEW" | See [import modes](#import-modes) | "NEW", "ALL", "ONESHOT" | 
 | IMPORT_ALL_TIMER | 10 | How long (in minutes) should the program wait between running import under `IMPORT_MODE=ALL` | Any int | 
 
 ### Mount points

@@ -20,10 +20,10 @@ This file needs to contain a variable `WATCH` which is equal to a list of dictio
 -   `pattern` containing a string representing a python regex pattern (Optional, default is to skip checking it)
 
 ### Import Modes
-There are three import modes currently: 
-    - NEW: monitors `source` directory for new files recursively and imports them (default)
-    - ALL: Every `$IMPORT_ALL_TIMER` minutes, imports all files in `source`
-    - ONESHOT: Import all files in `source` once, then exit
+There are three import modes currently:
+- NEW: monitors `source` directory for new files recursively and imports them (default) 
+- ALL: Every `$IMPORT_ALL_TIMER` minutes, imports all files in `source`  
+- ONESHOT: Import all files in `source` once, then exit
 
 Please note, calibre is capable of adding literally any file - I've tested things like database files and binaries, and it can add them fine. It does not seem to run any validation on the files as valid ebooks. As such, there is no logging feedback on success of the command, it is assumed that `calibredb add` is always sucessful. The user should be aware then, that any file addded to `source` will be imported, unless they make use of `pattern`. 
 
@@ -31,18 +31,18 @@ There is no support for single entries spread across many files (i.e. unpacked c
 
 ### Environmental variables: 
 
-| Variable | Default | Valid Values | Function | 
+| Variable | Default | Description |  Valid values | 
 | --- | --- | --- | --- |
-| LOG_LEVEL | "INFO" | "DEBUG","INFO","WARNING","ERROR","CRITICAL" | Set log verbosity | 
-| CALIBRE_LIBRARY | "/calibre/library" | Any directory | Location of calibre library | 
-| CALIBRE_PLUGIN_DIR | "/calibre/plugins/runtime" | Any directory | Location of folder containing plugins to be installed at container start |
-| LIBRARY_UID | 1000 | Any 32-bit int | UID of user who owns the library (i.e. who should own files in CALIBRE_LIBRARY) | 
-| LIBRARY_GID | 1000 | Any 32-bit-int | As above, but for GID |
-| UMASK | 18 | 0-511 | The umask to run the program under (i.e. to create new files under), as an integer. Reminder that this represents the _unset_ permission bits of the resulting file (i.e. 18 (octal 022) results in file with perms 492 (octal 755)). |
-| USER_CONFIG_PATH | "/config/user_config.py" | Valid file path | Location of the user import rules, as described in [config.example.py](config.example.py) |
-| TRANSFER_TIMEOUT | 15 | Any int | How long (in minutes) the program waits for a file to copy (before attempting import) before timeing out and skiping that file |
-| IMPORT_MODE | "NEW" | "NEW","ALL","ONESHOT" | See [import modes](#import-modes) | 
-| IMPORT_ALL_TIMER | 10 | Any int | How long (in minutes) should the program wait between running import under `IMPORT_MODE=ALL` |
+| LOG_LEVEL | "INFO" | Set log berbosity | "DEBUG","INFO","WARNING","ERROR","CRITICAL" | 
+| CALIBRE_LIBRARY | "/calibre/library" | Location of calibre library | Any directory |
+| CALIBRE_PLUGIN_DIR | "/calibre/plugins/runtime" | ALocation of folder containing plugins to be installed at container start | Any directory | 
+| LIBRARY_UID | 1000 | UID of user who owns the library (i.e. who should own files in CALIBRE_LIBRARY) | Any 32-bit int | 
+| LIBRARY_GID | 1000 | AS above, but for GID | Any 32-bit-int |
+| UMASK | 18 | The umask to run the program under (i.e. to create new files under), as an integer. Reminder that this represents the _unset_ permission bits of the resulting file (i.e. 18 (octal 022) results in file with perms 492 (octal 755)) | 0-511 |
+| USER_CONFIG_PATH | "/config/user_config.py" | Location of the user import rules, as described in [config.example.py](config.example.py) | Valid file path | 
+| TRANSFER_TIMEOUT | 15 | How long (in minutes) the program waits for a file to copy (before attempting import) before timeing out and skiping that file | Any int |  
+| IMPORT_MODE | "NEW" | See [import modes](#import-modes) | "NEW","ALL","ONESHOT" | 
+| IMPORT_ALL_TIMER | 10 | How long (in minutes) should the program wait between running import under `IMPORT_MODE=ALL` | Any int | 
 
 ### Mount points
 See [above](#environmental-variables) in regards to `CALIBRE_LIBRARY`, `CALIBRE_PLUGIN_DIR`, `USER_CONFIG_PATH`. See [config.example.py](config.example.py) in regards to setting the location of the source directories to import new files from. In addition, there are some relevant static paths: 
@@ -50,6 +50,6 @@ See [above](#environmental-variables) in regards to `CALIBRE_LIBRARY`, `CALIBRE_
 | --- | --- |
 | `/root/.config/calibre` | Location of calibre's settings folder |
 
-### TODO 
+## TODO 
 - Allow users to add their own packages for use in run commands, like was done with plugins. 
-- Allow users to set IMPORT_MODE per rule
+- Allow users to set IMPORT_MODE per rule 

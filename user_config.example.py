@@ -1,7 +1,7 @@
 """ This is a user editable config, in full python format (i.e, this is ran as python code)
     The intention of this file is to allow users to define their list of WATCH dictionaries. 
     This file is to be located at the location defined by environmnetal variable CONFIG_PATH, 
-    or if that is unset, it defaults to /app/user_config.py.
+    or if that is unset, it defaults to /config/user_config.py.
     You can set a single watch item using env vars, SOURCE, RUN, MOVE, FILTER as well. 
     The only _required_ value is source. remove defaults to False, filter will be set to '.*' and run will be skipped
 """

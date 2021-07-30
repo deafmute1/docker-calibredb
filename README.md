@@ -1,53 +1,55 @@
 # docker-calibredb
-calibredb is a docker image intended to provide a headless calibre library for use with calibre-web, COPS or similar. It supports automatic imports from a mounted host directory, with the ability to run custom modification via shell commands to the files prior to import based on subfolders. It includes the calibre plugin DeDRM prebuilt into the image. All relevant file types are supported, except a single db item spread over multiple files. Currently, the image provides access to the following packages/binaries which can be used to modify files before import:
+calibredb is a docker image intended to provide a headless calibre library for use with calibre-web, COPS or similar. It supports automatic imports from a mounted host directory(s), with the ability filter files based on regex patterns and to run custom modification via shell commands to the files prior to import based on subfolders. It includes the calibre plugin DeDRM prebuilt into the image, and allows users to mount their own plugins into the image. Currently, the image provides access to the following packages/binaries (in addition to a regular ubuntu hirsuite install) which can be used to modify files before import:
 
 - [calibre](https://manual.calibre-ebook.com/generated/en/cli-index.html)
-- [Kindle Comic Converter/KCC](https://github.com/ciromattia/kcc) (`kcc-c2e` and `kcc-c2p` (do not call them as kcc-*.py))
+- [Kindle Comic Converter/KCC](https://github.com/ciromattia/kcc) (`kcc-c2e` and `kcc-c2p`)
 
-**Get it on [docker hub](https://hub.docker.com/repository/docker/deafmute/calibredb)**, using autobuild tags:
-- `deafmute/calibredb:latest`: autobuilds from master branch.
-- `deafmute/calibredb:testing`: autobuilds from testing branch (not intended for real world use).
-- `deafmute/calibredb:version-*`: autobuilds builds from tagged releases.
+**Get it on [docker hub](https://hub.docker.com/repository/docker/deafmute/calibredb)**, using tags:
+- `deafmute/calibredb:latest`: builds from master branch.
+- `deafmute/calibredb:testing`: builds from testing branch (not intended for real world use).
+- `deafmute/calibredb:version-*`: builds builds from tagged releases.
 
 ## Configuration:
-Please refer to `docker-compose.yaml.example` for example deployment (my personal deployment). You need to modify imports per your own requirements. It is impossible to headlessly initalise the calibre database so a pre-created, empty metadata.db file has been supplied under `/image_root/calibre/defaults/metadata.db` and will be copied into place if there is no existing metadata.db. I used the same calibre version as the image to create `metadata.db` - you may have issues if you bring a metadata.db from newer versions (v5+) as this image is still running the old python2 version of calibre (v3.39.1).
+Users should set environmnetal variables and mount points as required in `docker-compose.yaml` or `docker run`, then view [user_config.example.py](user_config.example.py) in order to set an import rule, which comprises a source directory, regex pattern, remove boolean and import command (users can also set a single rule using environmental variables).
 
-### Mounts: 
+### user_config.py
+This file needs to contain a variable `WATCH` which is equal to a list of dictionaries with keys:
+-  `source` containing a string representing the path to import files from. (Required)
+-   `run` containg a string (which may use the token {file} to represent the filepath of each imported file) representing a command to be run at import of each file. (Optional, default is to skip it)
+-   `remove` containing a boolean, representing whether files in `source` should be deleted after import. (Optional, deafult is False) 
+-   `pattern` containing a string representing a python regex pattern (Optional, default is to skip checking it)
 
-Container mount point | Function 
---- | --- 
-/calibre/library | the calibre library, where metadata.db is located 
-/calibre/import | the location for import folders as defined by imports file
-/calibre/config | contains imports and entrypoint.log
-/calibre/config/bash.timer.d | contains bash scripts to be run every $IMPORT_TIME (optional)
-/calibre/config/bash.setup.d | contains bash scripts to be run on deploy (optional)
-    
+### Import Modes
+There are three import modes currently: 
+    - NEW: monitors `source` directory for new files recursively and imports them (default)
+    - ALL: Every `$IMPORT_ALL_TIMER` minutes, imports all files in `source`
+    - ONESHOT: Import all files in `source` once, then exit
+
+Please note, calibre is capable of adding literally any file - I've tested things like database files and binaries, and it can add them fine. It does not seem to run any validation on the files as valid ebooks. As such, there is no logging feedback on success of the command, it is assumed that `calibredb add` is always sucessful. The user should be aware then, that any file addded to `source` will be imported, unless they make use of `pattern`. 
+
+There is no support for single entries spread across many files (i.e. unpacked comic books), this is due to calibre itself. Packed comic book archives should work fine.
+
 ### Environmental variables: 
 
-| Variable(=Default) | Function | 
+| Variable | Default | Valid Values | Function | 
+| --- | --- | --- | --- |
+| LOG_LEVEL | "INFO" | "DEBUG","INFO","WARNING","ERROR","CRITICAL" | Set log verbosity | 
+| CALIBRE_LIBRARY | "/calibre/library" | Any directory | Location of calibre library | 
+| CALIBRE_PLUGIN_DIR | "/calibre/plugins/runtime" | Any directory | Location of folder containing plugins to be installed at container start |
+| LIBRARY_UID | 1000 | Any 32-bit int | UID of user who owns the library (i.e. who should own files in CALIBRE_LIBRARY) | 
+| LIBRARY_GID | 1000 | Any 32-bit-int | As above, but for GID |
+| UMASK | 18 | 0-511 | The umask to run the program under (i.e. to create new files under), as an integer. Reminder that this represents the _unset_ permission bits of the resulting file (i.e. 18 (octal 022) results in file with perms 492 (octal 755)). |
+| USER_CONFIG_PATH | "/config/user_config.py" | Valid file path | Location of the user import rules, as described in [config.example.py](config.example.py) |
+| TRANSFER_TIMEOUT | 15 | Any int | How long (in minutes) the program waits for a file to copy (before attempting import) before timeing out and skiping that file |
+| IMPORT_MODE | "NEW" | "NEW","ALL","ONESHOT" | See [import modes](#import-modes) | 
+| IMPORT_ALL_TIMER | 10 | Any int | How long (in minutes) should the program wait between running import under `IMPORT_MODE=ALL` |
+
+### Mount points
+See [above](#environmental-variables) in regards to `CALIBRE_LIBRARY`, `CALIBRE_PLUGIN_DIR`, `USER_CONFIG_PATH`. See [config.example.py](config.example.py) in regards to setting the location of the source directories to import new files from. In addition, there are some relevant static paths: 
+| Path | Function |
 | --- | --- |
-| UMASK_SET=022 | umask value for entrypoint functions | 
-| IMPORT_TIME=10m | How long to wait before looking for files to import (a value to be understood by `sleep`)|
-| DELETE_IMPORTED=false | If true, delete files after import (calibre will not import duplicates, but it may cause performance issues later) |
-| LIBRARY_UID=1000 | chown library directory to this user |
-| LIBRARY_GID=1000 | chown library directory to this group |
-| VERBOSE=false | enables highly verbose (set -x) mode for entrypoint.log |
+| `/root/.config/calibre` | Location of calibre's settings folder |
 
-### /calibre/config/imports:
-The recommended way to use this file is to mount /calibre/config from host.
-
-Each line in this file is an an import rule as per this syntax: `<a subfolder of /calibre/import (no spaces)> <command with arguments, including spaces where necessary>`
-- `entrypoint.sh` assumes that the command is run as `<command with arguments> <input file> `
-- You can chain commands using ;, &&, || etc. 
-- You can point to a shell script, in which case please refer to the file as variable `$1`.
-- Do not use  "", #, " " or empty lines anywhere in this file, it will break things - the file is read in from stdin to an array, it is not a bash file.
-
-**Examples:**
-
-import rule for files in directory /calibre/import/untouched, which runs no modification to files:
-
-`untouched`
-
-import rule for files in directory /calibre/import/manga, which uses to kcc-c2e to generate a kindle-friendly mobi from manga archives:
-
-`manga kcc-c2e -m -f MOBI`
+### TODO 
+- Allow users to add their own packages for use in run commands, like was done with plugins. 
+- Allow users to set IMPORT_MODE per rule

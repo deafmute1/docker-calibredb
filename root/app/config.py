@@ -25,7 +25,7 @@ VALID_CONFIG_VALUES =   ( 'CALIBRE_LIBRARY',
                         'VALID_WATCH_DICT_KEYS' )
 LOG_LEVEL = getattr(logging, os.getenv('LOG_LEVEL', 'INFO').upper())
 CALIBRE_LIBRARY = os.getenv('CALIBRE_LIBRARY', '/calibre/library')
-CALIBRE_ADD_COMMAND = os.getenv('CALIBRE_ADD_COMMAND', 'calibredb add --automerge new_record')
+CALIBRE_ADD_COMMAND = os.getenv('CALIBRE_ADD_COMMAND', 'calibredb add --automerge overwrite')
 CALIBRE_PLUGIN_DIR = os.getenv('CALIBRE_PLUGIN_DIR', '/calibre/plugins/runtime')
 METADATA_DB = os.path.join(CALIBRE_LIBRARY, 'metadata.db')
 DEFAULT_METADATA_DB = os.getenv('DEFAULT_METADATA_DB', '/calibre/metadata.default.db')
@@ -59,14 +59,9 @@ for i, rule in enumerate(WATCH):
     if not source.is_dir():
         raise exceptions.BadConfigValueException('Ruleset {} has source value that is not a directory'.format(rule))
 
-    if rule.get('run', None) is None: 
-        WATCH[i]['run'] = None 
+    WATCH[i]['run'] = rule.get('run', None) 
 
     if rule.get('remove', None) is None: 
         WATCH[i]['remove'] = False
 
-    rule = rule.get('pattern', None)
-    if rule is None: 
-        WATCH[i]['pattern'] = re.compile(r'.*')
-    else: 
-        WATCH[i]['pattern'] = re.compile(rule)
+    WATCH[i]['pattern'] = rule.get('pattern', None)

@@ -6,6 +6,8 @@ services:
         environment:
             - LOG_LEVEL=DEBUG
             - TRANSFER_TIMEOUT=1
+            - IMPORT_MODE=ALL
+            - IMPORT_ALL_TIMER=1
         volumes:
             - ./user_config.py:/config/user_config.py 
             - ./import:/calibre/import

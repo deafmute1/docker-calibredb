@@ -8,6 +8,8 @@ import signal
 import sys
 import shutil
 import pprint
+from typing import Union
+import zipfile
 # internal 
 import exceptions
 import config
@@ -18,20 +20,35 @@ import schedule
 
 def startup():
     logging.basicConfig(level=config.LOG_LEVEL, format='%(asctime)s - %(message)s')
-    logging.debug("CONFIG VALUES")
     for value in config.VALID_CONFIG_VALUES: 
-        logging.debug('{}: {}'.format(value, pprint.pformat(getattr(config, value))))
+        logging.info('{}: {}'.format(value, pprint.pformat(getattr(config, value))))
+
     os.umask(config.UMASK)
     if not Path(config.METADATA_DB).exists(): 
         shutil.copy2(config.DEFAULT_METADATA_DB, config.METADATA_DB)
         logging.info('STARTUP: Coped default.metadata.db into calibre library')
     shutil.chown(config.METADATA_DB, user=config.LIBRARY_UID, group=config.LIBRARY_GID)
+    recursive_chperms('/root/.config/calibre', perms=511)
     for plugin in Path(config.CALIBRE_PLUGIN_DIR).iterdir():
         try:  
             subprocess.run(['calibre-customize', '--add-plugin', str(plugin)])
-        except Exception: 
-            logging.exception("STARTUP: Failed to import plugin {}".format(plugin))
+        except zipfile.BadZipFile: 
+            logging.warning("STARTUP: Failed to install plugin {} as it is not a zipfile".format(plugin))
+            logging.debug("STARTUP: Exception info for failed plugin install {}".format(plugin), exc_info=True)
 
+
+def recursive_chperms(  path: Union[Path,str], 
+                        user: Union[str,int] = 'root', 
+                        group: Union[str, int] = 'root', 
+                        perms: int = 493, 
+                    ) -> None: 
+    shutil.chown(path, user=user, group=group)
+    os.chmod(path, perms)
+    for dirpath, _, fnames in os.walk(str(path)):
+        for file in fnames:
+            fpath = os.path.join(dirpath, file)
+            shutil.chown(fpath, user=user, group=group)
+            os.chmod(fpath, perms)
 
 def wait_on_file_transfer(file: Path) -> bool:
     size2 = -1

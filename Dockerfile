@@ -1,7 +1,8 @@
 FROM ubuntu:hirsute
 LABEL maintainer="ethan@ethandjeric.com"
-LABEL version="v2.0.0"
-LABEL metadata.default.db_version="3.39.1-debian10"
+LABEL version="v2.0.1"
+LABEL metadata.default.db_version="3.39.1"
+LABEL calibre_verison="5.11.0+dfsg-1"
 
     # enable i386 for kindlegen support
 RUN dpkg --add-architecture i386 && \  

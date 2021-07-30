@@ -1,6 +1,7 @@
 # std 
 from pathlib import Path
-import os  
+import os
+from config import CALIBRE_LIBRARY, LIBRARY_GID, LIBRARY_UID  
 import subprocess
 import logging
 import time
@@ -27,11 +28,14 @@ def startup():
     if not Path(config.METADATA_DB).exists(): 
         shutil.copy2(config.DEFAULT_METADATA_DB, config.METADATA_DB)
         logging.info('STARTUP: Coped default.metadata.db into calibre library')
+
+    subprocess.run(['groupadd', '--gid', str(config.LIBRARY_GID), 'libgrp'])
+    subprocess.run(['useradd', '--system', '--gid', str(config.LIBRARY_GID), '--uid', str(config.LIBRARY_UID), 'libuser'])
     shutil.chown(config.METADATA_DB, user=config.LIBRARY_UID, group=config.LIBRARY_GID)
     recursive_chperms('/root/.config/calibre', perms=511)
     for plugin in Path(config.CALIBRE_PLUGIN_DIR).iterdir():
         try:  
-            subprocess.run(['calibre-customize', '--add-plugin', str(plugin)])
+            subprocess.run(['calibre-customize', '--add-plugin', '"{}"'.format(str(plugin))])
         except zipfile.BadZipFile: 
             logging.warning("STARTUP: Failed to install plugin {} as it is not a zipfile".format(plugin))
             logging.debug("STARTUP: Exception info for failed plugin install {}".format(plugin), exc_info=True)
@@ -95,7 +99,7 @@ def import_file(fpath: Path, ruleset: dict) -> bool:
         logging.debug('IMPORT: OUTPUT for users command {} \n\n STDERR: {} \n\n STDOUT: {}'.format(res.args, res.stderr, res.stdout))
 
     # dont bother checking outcome since its basically impossible to fail given a valid file path. calibre will import anything. 
-    c = [*(config.CALIBRE_ADD_COMMAND.split()), '--with-library', config.CALIBRE_LIBRARY, str(fpath)]
+    c = config.CALIBRE_ADD_COMMAND.split() + ['--with-library', '"{}"'.format(config.CALIBRE_LIBRARY), '"{}"'.format(str(fpath))]
     logging.debug('IMPORT: Adding file to library using command {}'.format(c))
     subprocess.run(c, user=config.LIBRARY_UID, group=config.LIBRARY_GID, umask=config.UMASK)
     logging.info('IMPORT: File {} added to library'.format(fpath)) 
@@ -172,7 +176,7 @@ class Main():
         logging.critical("MAIN: Job list empty (without manual intervention) - exiting")
         sys.exit()
 
-    def _signal_handler(self) -> None:
+    def _signal_handler(self, *args) -> None:
         logging.critical('MAIN: Recieved SIGHUP or SIGTERM exiting after clearing job list - any job currently in progress will complete. ')
         self.scheduler.clear()
         sys.exit("MAIN: Exiting due to SIGHUP/SIGTERM")

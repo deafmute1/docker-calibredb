@@ -25,7 +25,7 @@ VALID_CONFIG_VALUES =   ( 'CALIBRE_LIBRARY',
                         'VALID_WATCH_DICT_KEYS' )
 LOG_LEVEL = getattr(logging, os.getenv('LOG_LEVEL', 'INFO').upper())
 CALIBRE_LIBRARY = os.getenv('CALIBRE_LIBRARY', '/calibre/library')
-CALIBRE_ADD_COMMAND = os.getenv('CALIBRE_ADD_COMMAND', 'calibredb add --automerge overwrite')
+CALIBRE_ADD_COMMAND = os.getenv('CALIBRE_ADD_COMMAND', 'calibredb add --automerge=overwrite')
 CALIBRE_PLUGIN_DIR = os.getenv('CALIBRE_PLUGIN_DIR', '/calibre/plugins/runtime')
 METADATA_DB = os.path.join(CALIBRE_LIBRARY, 'metadata.db')
 DEFAULT_METADATA_DB = os.getenv('DEFAULT_METADATA_DB', '/calibre/metadata.default.db')

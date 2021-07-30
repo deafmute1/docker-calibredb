@@ -64,4 +64,9 @@ for i, rule in enumerate(WATCH):
     if rule.get('remove', None) is None: 
         WATCH[i]['remove'] = False
 
-    WATCH[i]['pattern'] = rule.get('pattern', None)
+    pat = rule.get('pattern', None)
+    if isinstance(pat, str): 
+        WATCH[i]['pattern'] = re.compile(pat) 
+    else: 
+        WATCH[i]['pattern'] = None 
+

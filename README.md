@@ -1,3 +1,7 @@
+# THIS REPO IS ARCHIVED: 
+- I have switched to using a customized deployment of linuxserver/calibre image, using the automatic import feature built into calibre. As this can only delete all files it finds, I have instead switched to a more basic version of the python app supplied with v2 of this image: [fetch-new](https://github.com/deafmute1/fetch-new) in order to find new files and copy them into calibre. 
+- v2 has run into an issue with calling the calibredb command using spaces in the filename. Attempting to escape this (or using the array parameter of subprocess, which should escape it itself) causes some interdeterminate issue from `calibredb add` itself. 
+
 # docker-calibredb
 calibredb is a docker image intended to provide a headless calibre library for use with calibre-web, COPS or similar. It supports automatic imports from a mounted host directory(s), with the ability filter files based on regex patterns and to run custom modification via shell commands to the files prior to import based on subfolders. It includes the calibre plugin DeDRM prebuilt into the image, and allows users to mount their own plugins into the image. Currently, the image provides access to the following packages/binaries (in addition to a regular ubuntu hirsuite install) which can be used to modify files before import:
 
